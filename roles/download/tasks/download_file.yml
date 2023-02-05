@@ -72,18 +72,22 @@
     loop_control:
       loop_var: mirror
     ignore_errors: true
+    tags:
+    - multi-arch-incompatible
 
   # Ansible 2.9 requires we convert a generator to a list
   - name: download_file | Get the list of working mirrors
     set_fact:
       valid_mirror_urls: "{{ uri_result.results | selectattr('failed', 'eq', False) | map(attribute='mirror') | list }}"
     delegate_to: "{{ download_delegate if download_force_cache else inventory_hostname }}"
+    tags:
+    - multi-arch-incompatible
 
   # This must always be called, to check if the checksum matches. On no-match the file is re-downloaded.
   # This task will avoid logging it's parameters to not leak environment passwords in the log
   - name: download_file | Download item
     get_url:
-      url: "{{ valid_mirror_urls | random }}"
+      url: "{{ download.url }}"
       dest: "{{ file_path_cached if download_force_cache else download.dest }}"
       owner: "{{ omit if download_localhost else (download.owner | default(omit)) }}"
       mode: "{{ omit if download_localhost else (download.mode | default(omit)) }}"
