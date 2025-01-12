@@ -38,6 +38,7 @@ rules:
   - secrets
   verbs:
   - get
+  - list
 {% if cilium_version | regex_replace('v') is version('1.12', '<') %}
 - apiGroups:
   - ""
